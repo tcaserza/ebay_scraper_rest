@@ -26,7 +26,7 @@ class items(db.Model):
             }
 
     def from_json(self, source):
-        for key in ["id", "item_id", "title", "end_date", "price"]:
+        for key in ["item_id", "title", "end_date", "price"]:
             if key in source:
                 setattr(self, key, source[key])
             else:

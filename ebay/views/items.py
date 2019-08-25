@@ -1,7 +1,7 @@
 
 from ebay import app, db
 from ebay.models import items as mitems
-from flask import Flask, Response, request, json, jsonify, url_for, g, _request_ctx_stack, abort, has_request_context, session, make_response, send_file
+from flask import Flask, Response, request, json
 from flask import Blueprint
 from ebay.utils import seasoned_response
 
@@ -14,11 +14,13 @@ mod = Blueprint('ebay', __name__, url_prefix='/ebay')
 #@authtest()
 def ebay_add():
     r = request.get_json()
-    item = mitems.items()
-    item.from_json(r)
-    db.session.add(item)
+    result = []
+    for i in r:
+        item = mitems.items()
+        item.from_json(i)
+        db.session.add(item)
+        result.append(item.to_json())
     db.session.commit()
-    result = item.to_json()
     app.logger.info('%s %r', "Successfully added new record to database:", result)
     return seasoned_response(result, "200")
 
@@ -63,8 +65,8 @@ def ebay_get():
         app.logger.info('%s', "Exited, user provides no search data.")
         return "400"
 
-    stat = mitems.items.query.filter_by(**rebuiltjson).all()
-    result = [mitems.items.to_json(x) for x in stat]
+    item = mitems.items.query.filter_by(**rebuiltjson).all()
+    result = [mitems.items.to_json(x) for x in item]
 
     app.logger.info('%s', "Call to get succeeded.")
     return "200"
@@ -75,8 +77,32 @@ def ebay_get():
 #@ma.login_required
 #@authtest()
 def ebay_list():
-    stat = mitems.items.query.all()
-    result = [mitems.items.to_json(x) for x in stat]
+    item = mitems.items.query.all()
+    result = [mitems.items.to_json(x) for x in item]
+
+    app.logger.info('%s', "Call to list succeeded.")
+    return seasoned_response(result, "200")
+
+
+#ebay/listids
+@mod.route('/listids')
+#@ma.login_required
+#@authtest()
+def ebay_list_ids():
+    item = mitems.items.query.all()
+    result = [mitems.items.to_json(x)['id'] for x in item]
+
+    app.logger.info('%s', "Call to list succeeded.")
+    return seasoned_response(result, "200")
+
+
+#ebay/listitemids
+@mod.route('/listitemids')
+#@ma.login_required
+#@authtest()
+def ebay_list_item_ids():
+    item = mitems.items.query.all()
+    result = [mitems.items.to_json(x)['item_id'] for x in item]
 
     app.logger.info('%s', "Call to list succeeded.")
     return seasoned_response(result, "200")
