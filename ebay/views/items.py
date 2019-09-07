@@ -18,10 +18,14 @@ def ebay_add():
     for i in r:
         item = mitems.items()
         item.from_json(i)
+        item['name'] = unicode.strip(item['name'])
         db.session.add(item)
         result.append(item.to_json())
     db.session.commit()
-    app.logger.info('%s %r', "Successfully added new record to database:", result)
+    if result:
+        app.logger.info('%s %r', "Successfully added new records to database:", result)
+    else:
+        app.logger.info("No new records added to database")
     return seasoned_response(result, "200")
 
 
@@ -43,7 +47,6 @@ def ebay_delete():
 
     # Display the record to be deleted
     deleted_record = item.first().to_json()
-
     item.delete()
     db.session.commit()
     app.logger.info('%s %r', "Successfully deleted record from database:", deleted_record)

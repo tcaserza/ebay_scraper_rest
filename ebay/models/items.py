@@ -14,7 +14,7 @@ class items(db.Model):
 
 
     def __repr__(self):
-        return '<stats %r>' % self.id
+        return '<items %r>' % self.id
 
     def to_json(self):
         return {
