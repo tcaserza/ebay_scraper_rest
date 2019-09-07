@@ -18,7 +18,7 @@ def ebay_add():
     for i in r:
         item = mitems.items()
         item.from_json(i)
-        item['name'] = unicode.strip(item['name'])
+        item['title'] = item['title'].decode('unicode_escape').encode('ascii', 'ignore')
         db.session.add(item)
         result.append(item.to_json())
     db.session.commit()
